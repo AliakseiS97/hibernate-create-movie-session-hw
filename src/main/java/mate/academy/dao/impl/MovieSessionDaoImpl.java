@@ -5,13 +5,16 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import mate.academy.dao.MovieSessionDao;
 import mate.academy.exception.DataProcessingException;
+import mate.academy.lib.Dao;
 import mate.academy.model.MovieSession;
 import mate.academy.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+@Dao
 public class MovieSessionDaoImpl implements MovieSessionDao {
     @Override
     public MovieSessionDao add(MovieSessionDao movieSession) {
@@ -24,18 +27,18 @@ public class MovieSessionDaoImpl implements MovieSessionDao {
             if (transaction != null) {
                 transaction.rollback();
             }
-            throw new DataProcessingException("Cannot save MovieSession", e);
+            throw new DataProcessingException("Cannot save MovieSession");
         }
         return movieSession;
     }
 
     @Override
-    public MovieSessionDao get(Long id) {
+    public Optional<MovieSession> get(Long id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             MovieSessionDao movieSession = session.get(MovieSessionDao.class, id);
-            return movieSession;
+            return Optional.ofNullable((MovieSession) movieSession);
         } catch (Exception e) {
-            throw new DataProcessingException("Cannot get MovieSession by id " + id, e);
+            throw new DataProcessingException("Cannot get MovieSession by id " + id);
         }
     }
 
@@ -45,15 +48,15 @@ public class MovieSessionDaoImpl implements MovieSessionDao {
         LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Query query = session.createQuery("FROM MovieSession ms "
-                            + "WHERE ms.movie.id = :movieId"
+                            + "WHERE ms.movie.id = :movieId "
                             + "AND ms.localDateTime BETWEEN :start AND :end",
-                    MovieSessionDao.class);
+                    MovieSession.class);
             query.setParameter("movieId", movieId);
             query.setParameter("start", startOfDay);
             query.setParameter("end", endOfDay);
             return query.getResultList();
         } catch (Exception e) {
-            throw new DataProcessingException("Cannot get MovieSessionDao", e);
+            throw new DataProcessingException("Cannot get MovieSessionDao");
         }
     }
 }
