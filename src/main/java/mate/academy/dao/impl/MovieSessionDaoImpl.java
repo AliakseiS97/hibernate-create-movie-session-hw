@@ -17,7 +17,7 @@ import org.hibernate.Transaction;
 @Dao
 public class MovieSessionDaoImpl implements MovieSessionDao {
     @Override
-    public MovieSessionDao add(MovieSessionDao movieSession) {
+    public MovieSession add(MovieSession movieSession) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
@@ -35,8 +35,8 @@ public class MovieSessionDaoImpl implements MovieSessionDao {
     @Override
     public Optional<MovieSession> get(Long id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            MovieSessionDao movieSession = session.get(MovieSessionDao.class, id);
-            return Optional.ofNullable((MovieSession) movieSession);
+            MovieSession movieSession = session.get(MovieSession.class, id);
+            return Optional.ofNullable(movieSession);
         } catch (Exception e) {
             throw new DataProcessingException("Cannot get MovieSession by id " + id);
         }
@@ -56,7 +56,8 @@ public class MovieSessionDaoImpl implements MovieSessionDao {
             query.setParameter("end", endOfDay);
             return query.getResultList();
         } catch (Exception e) {
-            throw new DataProcessingException("Cannot get MovieSessionDao");
+            throw new DataProcessingException(
+                    "Cannot find available sessions for movie with id " + movieId);
         }
     }
 }

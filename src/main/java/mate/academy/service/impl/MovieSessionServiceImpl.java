@@ -17,7 +17,7 @@ public class MovieSessionServiceImpl implements MovieSessionService {
 
     @Override
     public MovieSession add(MovieSession movieSession) {
-        return (MovieSession) movieSessionDao.add((MovieSessionDao) movieSession);
+        return movieSessionDao.add(movieSession);
     }
 
     @Override
